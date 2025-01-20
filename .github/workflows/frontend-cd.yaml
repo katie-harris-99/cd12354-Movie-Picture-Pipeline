@@ -58,7 +58,7 @@ jobs:
       run: npm run test 
 
   Deploy:
-    needs: [Linting, Test]
+    needs: [Lint, Test]
     runs-on: ubuntu-latest
     
     steps:
@@ -77,16 +77,16 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Docker Image
-      working-directory: frontend
-      run: |
-        docker build --build-arg=REACT_APP_MOVIE_API_URL=${{ vars.BACKEND_URL }} --tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA} .
-        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
+        working-directory: frontend
+        run: |
+          docker build --build-arg=REACT_APP_MOVIE_API_URL=${{ vars.BACKEND_URL }} --tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA} .
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
 
       - name: Configure kubectl
         run: |
           aws eks update-kubeconfig --name cluster --region us-east-1
 
-      - name: Deply image to eks
+      - name: Deploy image to EKS
         run: |
           cd frontend/k8s
           kustomize edit set image frontend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
