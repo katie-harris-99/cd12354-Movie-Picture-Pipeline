@@ -58,10 +58,7 @@ jobs:
       run: npm run test 
 
   Deploy:
-    rneeds: [Linting, Test]
-    needs:
-      - lint
-      - test
+    needs: [Linting, Test]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
