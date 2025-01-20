@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'starter/backend/**'
+      - 'backend/**'
   
 env:
   PYTHON_VERSION: '3.10'
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
         run:
-          working-directory: starter/backend
+          working-directory: backend
 
     steps:
     - name: Check out the repository
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
         run:
-          working-directory: starter/backend
+          working-directory: backend
 
     steps:
     - name: Check out repository
@@ -78,7 +78,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Build and Push Docker Image
-      working-directory: starter/backend
+      working-directory: backend
       run: |
         docker build --build-arg=REACT_APP_MOVIE_API_URL=http://localhost:5000 --tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA} .
         docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA}
@@ -88,11 +88,11 @@ jobs:
         aws eks update-kubeconfig --name cluster --region us-east-1
 
     - name: Deploy to EKS
-      working-directory: starter/backend/k8s
+      working-directory: backend/k8s
       run: |
         kustomize edit set image backend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA}
         kustomize build | kubectl apply -f -
     - name: Url        
       run: |
-        cd starter/backend/k8s
+        cd backend/k8s
         kubectl get svc -A
